@@ -47,7 +47,7 @@ def get_y_hat(w, x):
 
 
 def perceptron_train(x, y, number_of_datasets):
-    eta = 0.001
+    eta = 1
     w = np.zeros([Data.CLUSTERS.value, Data.FEATCHERS.value])
     iterations = 10
     for i in range(iterations):
@@ -60,6 +60,7 @@ def perceptron_train(x, y, number_of_datasets):
                 w[y_i] = [w[y_i][i] + eta * x_i[i] for i in range(Data.FEATCHERS.value)]
                 w[y_i_hat] = [w[y_i_hat][i] - eta * x_i[i] for i in range(Data.FEATCHERS.value)]
                 # print(w)
+        eta /= 10
     return w
 
 
