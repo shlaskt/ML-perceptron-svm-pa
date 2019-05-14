@@ -21,6 +21,7 @@ Our code should get as input three arguments.
 * The first one will be the training examples (train_x.txt).
 * The second one is the training labels (train_y.txt).
 * The third one will be the testing examples (test_x.txt).
+
 train_x.txt and test_x.txt will have the same format.
 We trained 3 algorithms: Perceptron, SVM and PA (in that order).
 Than, we output to the screen our predictions (only) for test_x.txt in the following format:
