@@ -28,6 +28,7 @@ Than, we output to the screen our predictions (only) for test_x.txt in the follo
 * perceptron: 2, svm: 2, pa: 2
 * perceptron: 1, svm: 1, pa: 1
 ...
+
 where each line in the output corresponds to a line in test_x.txt and the numbers represent our class predictions for classes 0,1,2.
 
 ## Note:
