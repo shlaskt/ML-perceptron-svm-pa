@@ -6,7 +6,7 @@
 
 
 ## Introduction
-In this exercise we were implement and compare Perceptron, SVM, and PA. We were provided with
+In this exercise we implement and compare Perceptron, SVM, and PA. We were provided with
 a training set of 3,286 examples where we needed to classify between 3 classes.
 
 ## Dataset:
