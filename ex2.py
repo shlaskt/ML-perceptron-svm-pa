@@ -30,13 +30,11 @@ def parser(file):
         if "M" in line:
             local_line = line.replace("M", str(Sex.MALE.value))
         elif "F" in line:
-            local_line = line.replace("F", str(Sex.MALE.value))
+            local_line = line.replace("F", str(Sex.FEMALE.value))
         else:
-            local_line = line.replace("I", str(Sex.MALE.value))
+            local_line = line.replace("I", str(Sex.INFANT.value))
         tokens = [float(x.strip()) for x in local_line.split(',')]
         data_sets.append(tokens)
-        # TODO axis? ddof?
-        # stats.mstats.zscore(data_sets[i])
     f.close()
     return data_sets
 
@@ -95,6 +93,7 @@ def svm_train_update(w, y, x, eta):
             w[i] = [one_minus_eta_lamda * w[i][j] for j in range(Data.FEATCHERS.value)]
     return w
 
+
 # initialize 3 zeros matrixs
 def init_w_for_algs():
     w_1 = np.zeros([Data.CLUSTERS.value, Data.FEATCHERS.value])
@@ -108,13 +107,12 @@ def train(x, y):
     eta_per = 1
     eta_svm = 1.5
     iterations = 20
+    change_ethas = 0
     for i in range(iterations):
-        change_ethas = 0
         # shuffle the data
         x, y = shuffle_data(x, y)
-        #        x, y = random.shuffle(x, y)  # TODO check
         for x_i, y_i in zip(x, y):
-            change_ethas = (change_ethas+1) % 1000
+            change_ethas = (change_ethas + 1) % 1000
             if change_ethas == 0:  # change every 1000 samples
                 eta_per *= 0.5
                 eta_svm *= 0.5
@@ -125,15 +123,7 @@ def train(x, y):
     return w_perceptron, w_svm, w_pa
 
 
-# def check_line(w, x):
-#  result = []
-# for i in range(Data.CLUSTERS.value):
-#    result.append(sum([w[i][j] * x[j] for j in range(Data.FEATCHERS.value)]))
-# return np.argmax(result)
-
-
 def classify(w_per, w_svm, w_pa, x):
-    x = normal_data(x)  # normalize data
     for line in x:
         # get the prediction for every alg and print
         y_hat_per = get_y_hat(w_per, line)
@@ -162,7 +152,7 @@ def normal_data(data):
 
 
 def TEMP_FUNC(train_x, train_y):
-    cut = 3200
+    cut = 3000
     x = train_x[: cut]
     y = train_y[: cut]
     test = train_x[cut:]
@@ -179,27 +169,27 @@ def error_rate(w, test_x, test_y, alg):
     print("Error rate for " + alg + " is:", bad / len(test_y))
 
 
-def main():
-    train_x = parser(sys.argv[1])
-    train_x = normal_data(train_x)  # normalize data
-    # print("train x:\n", train_x)
-    file_y = open(sys.argv[2], "r+")
-    train_y = [int(float(x)) for x in file_y]
-    file_y.close()
-    train_x, train_y, test_x, test_y = TEMP_FUNC(train_x, train_y)
-
-    #test_x = train_x
-
-    #test_y = train_y
-
-    # print("train y:\n", train_y)
-    w_per, w_svm, w_pa = train(train_x, train_y)
-    # print(w)
-    classify(w_per, w_svm, w_pa, test_x)
-    # test_x = sys.argv[2]
+def print_error(w_per, w_svm, w_pa, test_x, test_y):
     error_rate(w_per, test_x, test_y, "perceptron")
     error_rate(w_svm, test_x, test_y, "svm")
     error_rate(w_pa, test_x, test_y, "pa")
+
+def get_files():
+    train_x = parser(sys.argv[1])
+    train_x = normal_data(train_x)  # normalize data
+    file_y = open(sys.argv[2], "r+")
+    train_y = [int(float(x)) for x in file_y]
+    file_y.close()
+    test_x = parser(sys.argv[3])
+    test_x = normal_data(test_x)  # normalize data
+    return train_x, train_y, test_x
+
+
+def main():
+    train_x, train_y, test_x = get_files()
+    w_per, w_svm, w_pa = train(train_x, train_y)
+    classify(w_per, w_svm, w_pa, test_x)
+    # print_error(w_per, w_svm, w_pa, test_x, train_y)
 
 
 if __name__ == "__main__":
