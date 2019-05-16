@@ -2,8 +2,6 @@ import sys
 from enum import Enum
 import random
 import numpy as np
-from scipy import stats
-
 
 # enum for the sex
 class Sex(Enum):
@@ -151,7 +149,7 @@ def normal_data(data):
     return normal.transpose()  # back to the original
 
 
-def TEMP_FUNC(train_x, train_y):
+def cross_validataion(train_x, train_y):
     cut = 3000
     x = train_x[: cut]
     y = train_y[: cut]
@@ -174,6 +172,7 @@ def print_error(w_per, w_svm, w_pa, test_x, test_y):
     error_rate(w_svm, test_x, test_y, "svm")
     error_rate(w_pa, test_x, test_y, "pa")
 
+
 def get_files():
     train_x = parser(sys.argv[1])
     train_x = normal_data(train_x)  # normalize data
@@ -189,7 +188,7 @@ def main():
     train_x, train_y, test_x = get_files()
     w_per, w_svm, w_pa = train(train_x, train_y)
     classify(w_per, w_svm, w_pa, test_x)
-    # print_error(w_per, w_svm, w_pa, test_x, train_y)
+    print_error(w_per, w_svm, w_pa, test_x, train_y)
 
 
 if __name__ == "__main__":
