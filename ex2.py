@@ -51,7 +51,7 @@ def get_y_hat(w, x):
 # calculate the loss function
 def get_loss(w, x, y):
     y_hat = get_y_hat(w, x)
-    return max(0, 1 - np.dot(w[y], x) + np.dot(w[y_hat], x))
+    return max(0, 1 - np.dot(w[int(y)], x) + np.dot(w[y_hat], x))
 
 
 # calculate tao for the pa algorithm
@@ -71,8 +71,9 @@ getting const - eta ot tau
 
 
 def generic_update(w, y, y_hat, x, const):
-    if y != y_hat:
-        w[y] = [w[y][i] + const * x[i] for i in range(Data.FEATCHERS.value)]
+    int_y = int(y)
+    if int_y != y_hat:
+        w[int_y] = [w[int_y][i] + const * x[i] for i in range(Data.FEATCHERS.value)]
         w[y_hat] = [w[y_hat][i] - const * x[i] for i in range(Data.FEATCHERS.value)]
     return w
 
@@ -113,15 +114,16 @@ update all other columns
 
 
 def svm_train_update(w, y, x, eta):
+    int_y = int(y)
     y_hat = get_y_hat(w, x)
     lamda = 0.5
     one_minus_eta_lamda = 1 - eta * lamda
-    if y != y_hat:
-        w[y] = [one_minus_eta_lamda * w[y][i] + eta * x[i] for i in range(Data.FEATCHERS.value)]
+    if int_y != y_hat:
+        w[int_y] = [one_minus_eta_lamda * w[int_y][i] + eta * x[i] for i in range(Data.FEATCHERS.value)]
         w[y_hat] = [one_minus_eta_lamda * w[y_hat][i] - eta * x[i] for i in range(Data.FEATCHERS.value)]
         # update the other line(/s)
         for i in range(Data.CLUSTERS.value):
-            if i != y and i != y_hat:
+            if i != int_y and i != y_hat:
                 w[i] = [one_minus_eta_lamda * w[i][j] for j in range(Data.FEATCHERS.value)]
     else:
         for i in range(Data.CLUSTERS.value):
@@ -203,15 +205,24 @@ do the min- max normalized algorithm.
 
 
 def normal_data(data):
-    normal = np.array([np.array(i) for i in data])  # matrix  to array
-    normal = normal.transpose()  # to normalized by columns and not rows
-    for i, val in enumerate(normal):
-        min_val = min(val)
-        max_val = max(val)
-        diff = max_val - min_val
-        if diff != 0:
-            normal[i] = np.divide(np.subtract(val, min_val), diff)
-    return normal.transpose()  # back to the original
+    # create array of the min and max value for every column (featcher)
+    columns = Data.FEATCHERS.value
+    mins = np.zeros(columns)
+    maxs = np.zeros(columns)
+    # get the values
+    c_data = np.array(data)
+    for j in range(columns):
+        mins[j] = np.min(c_data[:, j])
+        maxs[j] = np.max(c_data[:, j])
+    # create copy array and normalized the values
+    normalized = np.copy(data)
+    for i, line in enumerate(normalized):
+        for j in range(columns):
+            if maxs[j] - mins[j] == 0:
+                normalized[i][j] = data[i][j] - mins[j]
+            else:
+                normalized[i][j] = (data[i][j] - mins[j]) / (maxs[j] - mins[j])
+    return normalized
 
 
 """
@@ -221,7 +232,7 @@ cross the data, train the first part and test the second
 
 
 def cross_validataion(train_x, train_y):
-    cut = 3000
+    cut = 2500
     x = train_x[: cut]
     y = train_y[: cut]
     test = train_x[cut:]
@@ -263,7 +274,7 @@ def get_files():
     train_x = parser(sys.argv[1])  # get train_x
     train_x = normal_data(train_x)  # normalize train_x
     file_y = open(sys.argv[2], "r+")  # get train_y
-    train_y = [int(float(x)) for x in file_y]
+    train_y = [float(x) for x in file_y]
     file_y.close()
     test_x = parser(sys.argv[3])  # get test_x
     test_x = normal_data(test_x)  # normalize test_x
@@ -282,7 +293,7 @@ def main():
     train_x, train_y, test_x = get_files()
     w_per, w_svm, w_pa = train(train_x, train_y)
     classify(w_per, w_svm, w_pa, test_x)
-    # print_error(w_per, w_svm, w_pa, test_x, train_y)
+    # print_error(w_per, w_svm, w_pa, test_x, test_y)
 
 
 # call main
